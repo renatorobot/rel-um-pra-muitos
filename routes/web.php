@@ -73,3 +73,56 @@ Route::get('/categorias-produto', function () {
 
 
 });
+
+Route::get('/categorias-produto/json', function () {
+
+    $cats = Categoria::with('produtos')->get();
+    return $cats->toJson();
+
+});
+
+Route::get('/adicionar-produto/json', function () {
+
+    $cat = Categoria::find(1);
+    $p = new Produto();
+    $p->nome = "Meu Novo Produto";
+    $p->estoque = 10;
+    $p->preco = 100;
+    $p->categoria()->associate($cat);
+    $p->save();
+    return $p->toJson();
+
+});
+
+Route::get('/remover-produto-categoria', function () {
+
+    $p = Produto::find(6);
+    if(isset($p)){
+
+        $p->categoria()->dissociate();
+        $p->save();
+        return $p->toJson();
+
+    }
+    
+    return '';
+
+});
+
+Route::get('/adicionar-produto/{catid}', function ($catid) {
+
+    $cat = Categoria::with('produtos')->find($catid);
+
+    $p = new Produto();
+    $p->nome = "Meu Novo Produto 456";
+    $p->estoque = 10;
+    $p->preco = 6850;
+
+    if(isset($cat)){
+        $cat->produtos()->save($p);
+    }
+
+    $cat->load('produtos');
+    return $cat->toJson();
+
+});
